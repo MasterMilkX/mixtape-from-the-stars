@@ -13,13 +13,27 @@ var points = {}
 
 let flat='\u{266d}'
 var music_notes = ['C','G','D','A','E','B','G'+flat,'D'+flat,'A'+flat,'E'+flat,'B'+flat,'F']
-var zodiacs = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Pisces']
+var zodiacs = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn',"Aquarius",'Pisces']
 var zodiac_sym = ['\u{2648}','\u{2649}','\u{264A}','\u{264B}','\u{264C}','\u{264D}','\u{264E}','\u{264F}','\u{2650}','\u{2651}','\u{2652}','\u{2653}']
 
 var connections = {}
 
+CHART_OFFSET = 15;
+
+
+// CHECK IF IN ARRAY
+function inArr(a,e){
+	return a.indexOf(e) != -1;
+}
+
+
 // INITIALIZING FUNCTION 
 function init(){
+	//get the planet data
+	manual_input();
+	load_chart()
+
+
 	//initialize points
 	for(let i=0;i<12;i++){
 		points[i] = {'note':music_notes[i],'sign':zodiacs[i],'symb':zodiac_sym[i]};
@@ -29,7 +43,7 @@ function init(){
 	connect();
 
 	//try to draw it
-	drawStar12(15);
+	drawStar12(CHART_OFFSET);
 }
 
 
@@ -66,6 +80,72 @@ function addCon(note_type,add){
 	}
 }
 
+
+// GET THE INDICES OF THE PLANETS IN BIRTHCHART
+var bcPlanets = []
+function getBirthPlanets(){
+	bcPlanets = [];
+	for(let p=0;p<planet_rows.length;p++){
+		let v = planet_rows[p].getElementsByTagName("select")[0].value;
+		if(v == "-"){continue}
+
+
+		let vi = zodiacs.indexOf(v);
+		if(bcPlanets.indexOf(vi) == -1){
+			bcPlanets.push(vi);
+		}
+	}
+}
+
+
+// GET THE CONNECTIONS ONLY IN ALIGNMENT WITH THE BIRTHCHART
+var bcConnect = {}
+function getBCCon(){
+	bcConnect = {};
+	let conn = ['p5p4','maj2min7','min3maj6','maj3min6','min2maj7','tritone']
+	for(let t=0;t<conn.length;t++){
+		let s=connections[conn[t]];
+		bcConnect[conn[t]] = []
+		for(let c=0;c<s.length;c++){
+			let c1=s[c][0];
+			let c2=s[c][1];
+			bcConnect[conn[t]].push((inArr(bcPlanets,c1) && inArr(bcPlanets,c2)))
+		}	
+	}
+}
+
+// SAVE THE BIRTHCHART VALUES FOR RELOADING
+function save_chart(){
+	let pset = []
+	for(let p=0;p<planet_rows.length;p++){
+		let v = planet_rows[p].getElementsByTagName("select")[0].value;
+		pset.push(v);
+	}	
+	localStorage.setItem('saved_planets',JSON.stringify(pset));
+}
+
+// RELOAD THE SAVED CHART 
+function load_chart(){
+	if(localStorage.getItem('saved_planets') == null){return;}
+	let pset = JSON.parse(localStorage.getItem('saved_planets'))
+
+	for(let p=0;p<planet_rows.length;p++){
+		planet_rows[p].getElementsByTagName("select")[0].value = pset[p];
+	}	
+}
+
+
+// TAKE SUBMISSION FROM THE CHART
+function submitBirthChart(){
+	getBirthPlanets();
+	getBCCon();
+	drawStar12(CHART_OFFSET);
+	save_chart();
+}
+
+
+
+
 // CONVERT DEGREES TO RADIANS
 function deg2rad(a){return a*(Math.PI/180)}
 
@@ -96,7 +176,11 @@ function drawStar12(offset=0){
 			let x=p[0]
 			let y=p[1]
 
+
+			ctx.globalAlpha = (bcPlanets.length > 0 && !inArr(bcPlanets,i) ? 0.25 : 1.0)
+
 			ctx.fillText(labels[j],cx+x,cy+y)
+			ctx.globalAlpha = 1.0;
 		}
 
 		//save position of base
@@ -115,15 +199,16 @@ function drawStar12(offset=0){
 	let colors = ['#ff0000', '#ff7800', '#ffff00', '#00ff00', '#0079ff', '#a600ae']
 
 	for(let k=0;k<conn.length;k++){
-		ctx.strokeStyle = colors[k]
-		let s=connections[conn[k]];
+		let s=connections[conn[k]];	
 
 		//draw each line
 		for(let m=0;m<s.length;m++){
 
 			let b1 = basePos[s[m][0]];
 			let b2 = basePos[s[m][1]];
-			console.log(s)
+
+
+			ctx.strokeStyle = ((bcPlanets.length > 0 && !bcConnect[conn[k]][m]) ? "#454545" : colors[k])
 
 			ctx.beginPath()
 			ctx.moveTo(b1['x']+cx,b1['y']+cy);
