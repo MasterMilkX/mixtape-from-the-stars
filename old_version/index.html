@@ -1,0 +1,123 @@
+<html>
+	<head>
+		<title>Mixtape from the Stars</title>
+		<style type="text/css">
+			body{
+				margin:auto;
+				background-color:#191155;
+			}
+			#container{
+				width:90%;
+				text-align:center;
+				margin: 2vw auto 2vw auto;
+				padding:2vw 2vw 1vw 2vw;
+				background-color:#ac57c4;
+				color:#fff;
+				min-height:40vw;
+				font-family: Garamond, serif;
+			}
+			#internal{
+				display:flex;
+			}
+			#header{
+				font-size:3vw;
+				padding-bottom:1vw;
+				width:100%;
+			}
+
+			#left_side{
+				width:40%;
+				display:block;
+				margin-right: 3%;
+				background-color:#000;
+			}
+
+			#mid_side{
+				width:20%;
+				display:block;
+				background-color:#dedede;
+				color:#000;
+				padding:1vw 1vw 0.5vw 1vw;
+			}	
+			#right_side{
+				width:40%;
+				display: block;
+				border:1px solid black;
+				margin-left:3%;
+			}
+
+
+			#star12{
+				margin-top:auto;
+				margin-bottom: auto;
+				margin-left: auto;
+				margin-right: auto;
+				width:480px;
+				height:480px;
+				border:1px solid black;
+				margin-bottom: 1vw;
+				display:flex;
+			}
+
+
+			.select_row{
+				height:2.25vw;
+				border:1px solid black;
+				display:table-row;
+			}
+			.planet_name, .zodiac_select{
+				display:table-cell;
+			}
+
+			.planet_name{
+				text-align:right;
+				padding-right:1vw;
+			}
+
+		</style>
+
+		<script src='js/birth_chart.js'></script>
+	</head>
+
+	<body onload='init();'>
+		<div id='container'>
+			<!-- <div id='header'>Mixtape from the Stars</div> -->
+			<div id='internal'>
+				<div id='left_side'>
+					<canvas id='star12'>Use a different browser! Get with the program lol</canvas>
+				</div>
+				<div id='mid_side'>
+					<div id='birth_chart_manual'>
+						<!-- change view -->
+						<div id='planet_view' style='margin-bottom:1vw'>
+							<select onchange='changeView(this.value)'>
+								<option value='basic'>Basic</option>
+								<option value='personal'>Personal</option>
+								<option value='full' selected>Full</option>
+							</select>
+						</div>
+
+						<!-- choose planets and signs -->
+						<div id='select_menu'></div>
+
+						<!-- submit to the stars -->
+						<div style='margin-top:0.5vw'>
+							<button onclick='submitBirthChart()'>Submit</button>
+							<button onclick='resetChart()'>Reset</button>
+							<button onclick="window.open('https://astro.cafeastrology.com/natal.php','_blank');">Get planets</button>
+						</div>
+					</div>
+				</div>
+				<div id='right_side'>
+					
+				</div>
+			</div>
+		</div>
+
+		<script src='js/star12_gen.js'></script>
+
+	</body>
+
+
+
+</html>
