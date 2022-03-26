@@ -73,6 +73,8 @@ function Song(song_name,artist,stime,key){
 
 // INITIALIZING FUNCTION FOR THE WEB APP
 function init(){
+	ascendantDropdown()
+
 	//import the lasty profile if available
 	if(localStorage.lastUser){
 		cur_profile = JSON.parse(localStorage.lastUser)
@@ -80,9 +82,9 @@ function init(){
 	}
 	//create a new user
 	else{
-		ascendantDropdown()
+		document.getElementById("returnMain").style.display = "none";
 		showStartup();
-		selectHouse(1);
+		//selectHouse(1);
 	}
 }
 
@@ -101,12 +103,24 @@ function ascendantDropdown(){
 
 // CREATE A NEW USER PROFILE BASED ON ASCENDANT HOUSE
 function createNewUser(){
-	let new_prof = new Profile(document.getElementById("nameInput").value,document.getElementById("ascSelect").value)
+	let profileName = document.getElementById("nameInput").value;
+	//check for the same user
+	let allUsers = [];
+	if(localStorage.allUsers){
+		allUsers = JSON.parse(localStorage.allUsers);
+		if(allUsers.indexOf(profileName) != -1){
+			if(!confirm("A user named " + profileName + " already exists. Do you want to reset their data?")){return;}
+		}
+		allUsers.push(profileName);
+	}
+
+	let new_prof = new Profile(profileName,document.getElementById("ascSelect").value)
 	cur_profile = new_prof;
 	saveProfile();
 	showMain();
 	localStorage.lastUser = JSON.stringify(cur_profile);
 	localStorage.lastHouse = 1;
+	localStorage.allUsers = JSON.stringify(allUsers);
 }
 
 // STORES THE CURRENT PROFILE AS A JSON OBJECT IN THE BROWSER FOR ACCESS LATER
@@ -132,9 +146,8 @@ function saveProfile(){
 function switchProfile(pname){
 	let allProfiles = JSON.parse(localStorage.getItem('allProfiles'));
 	cur_profile = allProfiles[pname];
-	localStorage.lastUser = cur_profile;
-
-	//update playlist here
+	localStorage.lastUser = JSON.stringify(cur_profile);
+	generateHouses();
 }
 
 // SET THE DROPDOWN FOR PROFILE NAMES FOUND ON THE SYSTEM
@@ -149,6 +162,8 @@ function addProfileNames() {
 		let item = document.createElement("option");
 		item.value = names[n];
 		item.innerHTML = names[n];
+		if(cur_profile.profileName == names[n])
+			item.selected = true;
 		profileDD.appendChild(item);
 	}
 }
@@ -241,6 +256,7 @@ function showStartup(){
 
 // SHOW THE MAIN SCREEN
 function showMain(){
+	document.getElementById("returnMain").style.display = "block";
 	document.getElementById("startPage").style.display = "none";
 	document.getElementById("mainPage").style.display = "block";
 	addProfileNames();

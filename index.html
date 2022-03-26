@@ -41,9 +41,11 @@
 			#nameInput{
 				font-size:1.5em;
 				width:80%;
+				color:black;
 			}
 			#ascSelect{
 				color:#000;
+				font-size:1.2em;
 			}
 
 
@@ -74,7 +76,7 @@
 				padding:0.2em;
 				min-width: 12vw;
 			}
-			#settings{
+			#new_profile{
 				font-size:1.25em;
 				text-align: center;
 			}
@@ -153,9 +155,18 @@
 								<img src='cassette_tape.png'>
 							</div>
 						</div>
+
+						<!-- go back (if not the first page) -->
+						<div class='row top-buffer1' id='returnMain'>
+							<div class='col-sm-4 col-sm-offset-4'>
+								<button onclick='showMain()'>Back to Main</button>
+							</div>
+						</div>
+
 						<!-- profile setup -->
 						<div class='row top-buffer5'>
-							<div class='col-sm-4 col-sm-offset-4'>
+							<div class='col-sm-4 col-sm-offset-4' style='color:white;font-size:1.5em'>
+								New Profile:<br>
 								<input type='text' id='nameInput' placeholder='Name'>
 							</div>
 						</div>
@@ -212,12 +223,11 @@
 
 						<div class='row top-buffer5 bottom-buffer2'>
 							<div class='col-xs-4 col-xs-offset-3'>
-								<select id='profile_select'>
-									<option value='Milk'>Milk</option>
+								<select id='profile_select' onchange='switchProfile(this.value)'>
 								</select>
 							</div>
 							<div class='col-xs-2'>
-								<button id='settings'>⚙️</button>
+								<button id='new_profile' onclick='showStartup()'>⭐</button>
 							</div>
 						</div>
 					</div>
