@@ -111,7 +111,7 @@ function init(){
 
 	//import the lasty profile if available
 	if(localStorage.lastUser){
-		cur_profile = JSON.parse(localStorage.lastUser)
+		switchProfile(localStorage.lastUser)
 		showMain();
 	}
 	//create a new user
@@ -198,7 +198,7 @@ function createNewUser(){
 	cur_profile = new_prof;
 	saveProfile();
 	showMain();
-	localStorage.lastUser = JSON.stringify(cur_profile);
+	localStorage.lastUser = cur_profile.profileName;
 	localStorage.lastHouse = 1;
 	localStorage.allUsers = JSON.stringify(allUsers);
 }
@@ -207,12 +207,8 @@ function createNewUser(){
 function saveProfile(){
 	let allProfiles = {}
 	//create new profile storer
-	if(!localStorage.allProfiles){
-		localStorage.setItem('allProfiles',JSON.stringify(allProfiles));
-	}
-	//import the previous
-	else{
-		allProfiles = JSON.parse(localStorage.getItem('allProfiles'));
+	if(localStorage.allProfiles){
+		allProfiles = JSON.parse(localStorage.allProfiles);
 	}
 
 	//save the current profile
@@ -224,9 +220,9 @@ function saveProfile(){
 
 // SWITCH TO ANOTHER PROFILE
 function switchProfile(pname){
-	let allProfiles = JSON.parse(localStorage.getItem('allProfiles'));
+	let allProfiles = JSON.parse(localStorage.allProfiles);
 	cur_profile = allProfiles[pname];
-	localStorage.lastUser = JSON.stringify(cur_profile);
+	localStorage.lastUser = pname;
 	generateHouses();
 }
 
@@ -286,7 +282,7 @@ function addSongToProfile(){
 	let key = new_song.key.replace("m","")
 	let house = getHousebyKey(key)
 	cur_profile.playlistSet[house].songList.push(new_song);
-	document.getElementById("status").innerHTML = "[" + new_song.song_name + "] added to " + house + suffix[house-1] + " house playlist!"
+	document.getElementById("status").innerHTML = "[" + new_song.song_name + "] added to " + house + suffix[house-1] + " house (" + getSign(key) + ") playlist!"
 
 	if(localStorage.lastHouse == house)
 		showHousePlaylist(house);
