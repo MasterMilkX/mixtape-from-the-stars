@@ -4,6 +4,7 @@ var music_notes = ['C','G','D','A','E','B','F'+sharp,'C'+sharp,'A'+flat,'E'+flat
 var zodiacs = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn',"Aquarius",'Pisces']
 var zodiac_sym = ['\u{2648}','\u{2649}','\u{264A}','\u{264B}','\u{264C}','\u{264D}','\u{264E}','\u{264F}','\u{2650}','\u{2651}','\u{2652}','\u{2653}']
 var suffix = ['st','nd','rd','th','th','th','th','th','th','th','th','th']
+var houseSigns = []
 var house_descriptions = [
 	"self, identity", 
 	"values, material wealth",
@@ -17,11 +18,11 @@ var house_descriptions = [
 	"reputation, power, career",
 	"community, friendships",
 	"spirituality, subconscious"
-
 ]
 
 var cur_profile = null;
-
+var songSearchList = [];    //list of parsed Spotify Tracks
+var curSelSearchSong = 0;
 
 /////////      HELPER FUNCTIONS      //////////
 
@@ -35,6 +36,13 @@ function getKey(sign){
 function getSign(key){
 	let i = music_notes.indexOf(key);
 	return zodiacs[i];
+}
+function getHousebyKey(key){
+	return houseSigns.indexOf(zodiacs[music_notes.indexOf(key)])+1
+}
+function getHousebySign(sign){
+	return houseSigns.indexOf(sign)+1;
+	
 }
 
 /////////      CLASS DEFINITIONS     //////////
@@ -61,19 +69,45 @@ function HousePlaylist(house,sign){
 	this.songList = [];
 }
 
-function Song(song_name,artist,stime,key){
-	this.song_name = song_name;
+//create a new spotify track with all of the information
+function SpotifyTrack(id,name,artist,duration,key,url){
+	this.spotid = id;
+	this.song_name = name;
 	this.artist = artist;
-	this.song_time = stime;
-	this.song_key = key;
+	this.duration = duration;
+	this.key = key;
+	this.url = url;
 }
 
 ///////       INTERACTION FUNCTIONS      //////////
 
+//access the spotify API database
+var accessToken='BQBXYXDsUn2tFXgi-awvbGc16AA6BGoe_SVHRCcVmEHGHo1fJ1hz9gz8_-lVIysl3EJVz3baTuSle6JdaJDNwxyq3cURqQQzLzKlasyg0idCPNVecsQ2evQPBVitGDM0gnj9VxrqJzSjr88Q';
+function newToken(){
+	let client_id = "36934065df3a436b9d0542c5c78adb2a";
+	let client_secret = "ddcb90f01830407085c7d8c402f19fa9";
+	//encode the above here: https://www.base64encode.org/
+
+	fetch('https://accounts.spotify.com/api/token', {
+	    method: 'POST',
+	    headers: {
+	        'Authorization': 'Basic ' + "MzY5MzQwNjVkZjNhNDM2YjlkMDU0MmM1Yzc4YWRiMmE6ZGRjYjkwZjAxODMwNDA3MDg1YzdkOGM0MDJmMTlmYTk=",
+	        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+	    },
+	    body: 'grant_type=client_credentials',
+	    json: true
+	})
+	.then(response => response.json())
+	.then(data => {
+	    accessToken = data.access_token;
+	    console.log('generated a new token! Expires in ' + data.expires_in);
+	});
+}
 
 // INITIALIZING FUNCTION FOR THE WEB APP
 function init(){
 	ascendantDropdown()
+	newToken();
 
 	//import the lasty profile if available
 	if(localStorage.lastUser){
@@ -86,6 +120,52 @@ function init(){
 		showStartup();
 		//selectHouse(1);
 	}
+}
+
+// POPULATES THE SEARCH AREA WITH SELECTABLE SONGS
+function fillSearchArea(){
+	let searchArea = document.getElementById("search_results")
+	searchArea.innerHTML = ""
+	let maxstrlen = 100;
+
+	for(let i=0;i<songSearchList.length;i++){
+		let song = songSearchList[i];
+		let sn = (song.song_name.length > maxstrlen ? song.song_name.substr(0,maxstrlen) : song.song_name)
+		let an = (song.artist.length > maxstrlen ? song.artist.substr(0,maxstrlen) : song.artist)
+
+		let row = document.createElement("div")
+		row.classList.add("row")
+		row.classList.add("search_entry")
+		row.onclick = function(){setSearchIndex(i)};
+
+		let c1 = document.createElement("div");
+		c1.classList.add("col-xs-5");
+		c1.innerHTML = sn
+		row.appendChild(c1)
+
+		let c3 = document.createElement("div");
+		c3.classList.add("col-xs-5");
+		c3.innerHTML = an
+		row.appendChild(c3)
+
+		let c2 = document.createElement("div");
+		c2.classList.add("col-xs-2")
+		c2.innerHTML = songSearchList[i].key;
+		row.appendChild(c2);
+
+		searchArea.appendChild(row);
+	}
+}
+
+// SET THE SELECTED SEARCH INDEX TO THIS VALUE
+function setSearchIndex(i){
+	let allSearches = document.getElementsByClassName("search_entry");
+	for(let s=0;s<allSearches.length;s++){
+		allSearches[s].classList.remove("selSearch");
+		if(s == i)
+			allSearches[s].classList.add("selSearch");
+	}
+	curSelSearchSong = i;
 }
 
 // GENERATE THE DROPDOWNS FOR THE ASCENDANT HOUSE SELECTION
@@ -177,12 +257,14 @@ function generateHouses(){
 	//make the dropdown list
 	let houseDD = document.getElementById("house_selection");
 	houseDD.innerHTML = "";
+	houseSigns = [];
 	for(let i=0;i<12;i++){
 		let sign = zodiacs[(cur_profile.ascIndex + i) % 12];
 		let item = document.createElement("option");
 		item.value = (i+1);
 		if(lh == i+1){item.selected = true;}
 		item.innerHTML = sign;
+		houseSigns.push(sign)
 		houseDD.appendChild(item)
 	}
 
@@ -199,10 +281,16 @@ function selectHouse(house){
 }
 
 // ADD A SONG TO THE HOUSE PLAYLIST
-function addSongToProfile(sname,artist,stime,key){
-	let new_song = new Song(sname,artist,stime,key);
-	cur_profile.playlistSet[key].append(new_song);
-	showHousePlaylist();
+function addSongToProfile(){
+	let new_song = songSearchList[curSelSearchSong];
+	let key = new_song.key.replace("m","")
+	let house = getHousebyKey(key)
+	cur_profile.playlistSet[house].songList.push(new_song);
+	document.getElementById("status").innerHTML = "[" + new_song.song_name + "] added to " + house + suffix[house-1] + " house playlist!"
+
+	if(localStorage.lastHouse == house)
+		showHousePlaylist(house);
+	
 	saveProfile();
 }
 
@@ -214,7 +302,8 @@ function showHousePlaylist(house){
 	for(let s=0;s<songs.length;s++){
 		let se = songs[s];
 		let row = document.createElement("div")
-		row.classList.add("row playlist_entry");
+		row.classList.add("row");
+		row.classList.add("playlist_entry");
 
 		//order in list
 		let c1 = document.createElement("div");
@@ -237,7 +326,7 @@ function showHousePlaylist(house){
 		//time
 		let c4 = document.createElement("div");
 		c4.classList.add("col-xs-2");
-		c4.innerHTML = se.song_time;
+		c4.innerHTML = se.duration;
 		row.appendChild(c4);
 
 		//put it all together
