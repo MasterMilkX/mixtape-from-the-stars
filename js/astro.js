@@ -23,6 +23,7 @@ var house_descriptions = [
 var cur_profile = null;
 var songSearchList = [];    //list of parsed Spotify Tracks
 var curSelSearchSong = 0;
+var curPlaylist = {};
 
 /////////      HELPER FUNCTIONS      //////////
 
@@ -282,7 +283,7 @@ function addSongToProfile(){
 	let key = new_song.key.replace("m","")
 	let house = getHousebyKey(key)
 	cur_profile.playlistSet[house].songList.push(new_song);
-	document.getElementById("status").innerHTML = "[" + new_song.song_name + "] added to " + house + suffix[house-1] + " house (" + getSign(key) + ") playlist!"
+	document.getElementById("status").innerHTML = "[ " + new_song.song_name + " ] added to " + house + suffix[house-1] + " house (" + getSign(key) + ") playlist!"
 
 	if(localStorage.lastHouse == house)
 		showHousePlaylist(house);
@@ -326,12 +327,73 @@ function showHousePlaylist(house){
 		row.appendChild(c4);
 
 		//put it all together
+		row.value = s;
+		row.onclick = function(){selectPlaylistSong(s)}
 		playlistDiv.appendChild(row);
 	}
+	curPlaylist = {"house":house,"index":-1,"song":null};
 }
 
+//select a song to play from the playlist
+function selectPlaylistSong(i){
+	let playlist = cur_profile.playlistSet[curPlaylist["house"]];
+	curPlaylist["index"] = i;
+	curPlaylist["song"] = playlist.songList[i];
 
+	//show selected
+	let song_entries = document.getElementsByClassName("playlist_entry");
+	for(let p=0;p<song_entries.length;p++){
+		song_entries[p].classList.remove("played_entry")
+		if(p == i)
+			song_entries[p].classList.add("played_entry")
+	}
 
+	//set the iframe to the currently selected song
+	let spotifyFrame = document.getElementById("spotifyFrame");
+	spotifyFrame.src = curPlaylist["song"].url.replace("https://open.spotify.com/track/","https://open.spotify.com/embed/track/") + "?utm_source=generator";
+}
+
+// PLAY THE NEXT SONG ON THE QUEUE
+function playNextSong(){
+	let curPlaySong = document.getElementsByClassName("played_entry");
+	let index = 0;
+	if (curPlaySong.length == 0)
+		index = 0;
+	else
+		index = curPlaySong[0].value + 1
+	selectPlaylistSong(index)
+}
+
+// REMOVE CURRENT SONG FROM THE PLAYLIST
+function deleteSong(){
+	let index = curPlaylist["index"];
+	if(index >= 0 && confirm("Remove " + curPlaylist['song'].song_name + " from " + curPlaylist['house']  + " playlist?")){
+		cur_profile.playlistSet[curPlaylist["house"]].songList.splice(index,1);
+		document.getElementsByClassName("played_entry")[0].remove();
+		saveProfile();
+	}
+	
+}
+
+// SHUFFLE AN ARRAY
+function shuffle(array){
+	for (let i = array.length - 1; i > 0; i--) {
+	    const j = Math.floor(Math.random() * (i + 1));
+	    const temp = array[i];
+	    array[i] = array[j];
+	    array[j] = temp;
+	}
+ 	return array
+}
+
+// SHUFFLE THE CURRENT PLAYLIST SONGS
+function shufflePlaylist(){
+	let playlist = cur_profile.playlistSet[curPlaylist["house"]].songList;
+	cur_profile.playlistSet[curPlaylist["house"]].songList = shuffle(playlist)
+	saveProfile();
+	showHousePlaylist(curPlaylist["house"]);
+	console.log("playlist shuffled!")
+}
 
 // SHOW THE STARTUP SCREEN
 function showStartup(){
@@ -347,3 +409,12 @@ function showMain(){
 	addProfileNames();
 	generateHouses();
 }
+
+//search the song
+window.addEventListener("keypress", function(e){
+	let q = document.getElementById("song_input").value;
+	if(e.keyCode == 13 && q != ""){
+		console.log("searching shortcut!")
+		searchSong(q);
+	}
+})
