@@ -7,158 +7,14 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 	
-		<style>
-			body{
-				background-color:#200566;
-				text-align:center;
-			}
-			.top-buffer05{
-				margin-top:0.5em;
-			}
-			.top-buffer1{
-				margin-top:1em;
-			}
-			.top-buffer2{
-				margin-top:2em;
-			}
-			.top-buffer5{
-				margin-top:5em;
-			}
-			.bottom-buffer2{
-				margin-bottom: 2em;
-			}
-
-
-			/* set id elements*/
-			#startPage{
-				display: block;
-			}
-			#mainPage{
-				display: none;
-			}
-
-
-			#nameInput{
-				font-size:1.5em;
-				width:80%;
-				color:black;
-			}
-			#ascSelect{
-				color:#000;
-				font-size:1.2em;
-			}
-
-
-
-
-			#song_input{
-				width:90%;
-				min-width: 10em;
-				font-size:1.5em;
-			}
-			#search_btn{
-				font-size:1.25em;
-			}
-			#search_results{
-				background-color:#eeeeee;
-				height: 15em;
-				overflow-y:scroll;
-			}
-			.search_entry{
-				padding:0.25em;
-				cursor:pointer;
-			}
-			.search_entry:hover{
-				background-color:#bcbcbc;
-			}
-			.selSearch{
-				background-color:#FAEB7C;
-			}
-
-			#status{
-				color:red;
-				font-size:1em;
-				padding:0.5em;
-			}
-			#add_song{
-				background-color:#AA2BFF;
-				color:#fff;
-			}
-			#profile_select{
-				text-align: center;
-				font-size:1.25em;
-				padding:0.2em;
-				min-width: 12vw;
-			}
-			#new_profile{
-				font-size:1.25em;
-				text-align: center;
-			}
-
-
-			#zodiac_sym{
-				font-size:2.1em;
-			}
-
-			#music_key_sym{
-				font-size:2.1em;
-				color:white;
-			}
-
-			#house_selection{
-				padding:0.25vw;
-				font-size:1.5em;
-			}
-
-			#house_desc{
-				background-color:#dedede;
-				color:#000;
-				font-family: Garamond;
-				padding:0.25em;
-				margin-bottom: 1em;
-			}
-
-			#playlist{
-				background-color:#efefef;
-				height: 25em;
-				overflow-y:scroll;
-			}
-			#playlist_header{
-				background-color:#cdcdcd;
-				color:#454545;
-				font-family: Garamond;
-				padding:0.25em;
-				font-size: 1.2em;
-			}
-			.playlist_entry{
-				font-size:1em;
-				padding:0.25em;
-				color:#676767;
-				border-bottom: 1px solid #dedede;
-				cursor: pointer;
-			}
-			.playlist_entry:hover{
-				background-color:#EED776;
-				color:#343434;
-			}
-			.played_entry{
-				background-color:#7DCE66;
-			}
-
-			#menubar{
-				background-color:#dedede;
-				padding:0.5em;
-			}
-			#menubar > .row > div{
-				cursor: pointer;
-			}
-			
-
-		</style>
+		<link rel="stylesheet" href="styles.css">
+		<link rel="stylesheet" href="styles_extra.css">
 		<script src='js/astro.js'></script>
 		<script src='js/songInterface.js'></script>
 	</head>
 	<body onload='init()'>
+		<div>
+
 		<!-- STARTUP PAGE TO CREATE A NEW USER -->
 		<div id='startPage'>
 			<div class='container top-buffer2 text-center'>
@@ -167,7 +23,7 @@
 						<!-- logo header -->
 						<div class='row top-buffer1'>
 							<div class='col-sm-4 col-sm-offset-4'>
-								<img src='cassette_tape.png'>
+								<img src='cassette_tape.png' style='width:15em;text-align: center;' >
 							</div>
 						</div>
 
@@ -213,7 +69,7 @@
 						<!-- logo header -->
 						<div class='row top-buffer1'>
 							<div class='col-sm-12'>
-								<img src='cassette_tape.png'>
+								<img src='cassette_tape.png' style='width:12em;text-align: center;' >
 							</div>
 						</div>
 						<!-- song input -->
@@ -321,7 +177,7 @@
 		</div>
 
 
-
+		</div>
 	</body>
 
 </html>
