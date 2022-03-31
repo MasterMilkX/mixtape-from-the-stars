@@ -401,6 +401,7 @@ function showStartup(){
 	document.getElementById("startPage").style.display = "block";
 
 	document.body.style.background = "url(http://www.zingerbugimages.com/backgrounds/purple_satin_love_bats.gif)";
+	console.log("startup")
 }
 
 // SHOW THE MAIN SCREEN
@@ -413,6 +414,7 @@ function showMain(){
 
 	document.body.style.background = "url('bg.jpeg') no-repeat center center";
 	document.body.style.backgroundSize = "100% 100%"
+	console.log("main")
 }
 
 //search the song
