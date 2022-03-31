@@ -95,7 +95,7 @@ body{
 }
 
 #zodiac_img{
-	width:3em;
+	width:40%;
 }
 
 #music_key_sym{
@@ -118,7 +118,7 @@ body{
 
 #playlist{
 	background-color:#efefef;
-	height: 25em;
+	height: 18em;
 	overflow-y:scroll;
 }
 #playlist_header{
