@@ -399,6 +399,8 @@ function shufflePlaylist(){
 function showStartup(){
 	document.getElementById("mainPage").style.display = "none";
 	document.getElementById("startPage").style.display = "block";
+
+	document.body.style.background = "url(http://www.zingerbugimages.com/backgrounds/purple_satin_love_bats.gif)";
 }
 
 // SHOW THE MAIN SCREEN
@@ -408,6 +410,9 @@ function showMain(){
 	document.getElementById("mainPage").style.display = "block";
 	addProfileNames();
 	generateHouses();
+
+	document.body.style.background = "url('bg.jpeg') no-repeat center center";
+	document.body.style.backgroundSize = "100% 100%"
 }
 
 //search the song
