@@ -270,7 +270,7 @@ function generateHouses(){
 // SELECT THE HOUSE AND SHOW THE PLAYLIST FOR THE ASSOCIATED HOUSE
 function selectHouse(house){
 	let ai = (cur_profile.ascIndex + (house-1)) % 12;
-	//console.log(ai)
+	console.log(ai)
 	document.getElementById("zodiac_sym").innerHTML = zodiac_sym[ai];
 	document.getElementById("zodiac_img").src = "HelloKitty_Zodiac/" + zodiacs[ai] + ".gif"
 	document.getElementById("music_key_sym").innerHTML = music_notes[ai];
