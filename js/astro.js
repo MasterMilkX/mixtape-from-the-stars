@@ -45,6 +45,13 @@ function getHousebySign(sign){
 	return houseSigns.indexOf(sign)+1;
 	
 }
+//get the major relative of a minor key
+function relMajor(key){
+	let i = music_notes.indexOf(key);
+	let ri = (i-3) % 12;
+	ri = ri < 0 ? 12+ri : ri
+	return music_notes[ri];
+}
 
 /////////      CLASS DEFINITIONS     //////////
 
@@ -52,6 +59,8 @@ function getHousebySign(sign){
 function Profile(profileName, ascendant){
 	this.profileName = profileName;
 	this.ascendant = ascendant;
+
+	this.isRelMajor = true;
 
 	//create empty playlist set
 	this.playlistSet = {};
@@ -225,6 +234,7 @@ function switchProfile(pname){
 	cur_profile = allProfiles[pname];
 	localStorage.lastUser = pname;
 	generateHouses();
+	replaceMinorPlaylists();
 }
 
 // SET THE DROPDOWN FOR PROFILE NAMES FOUND ON THE SYSTEM
@@ -282,7 +292,7 @@ function selectHouse(house){
 // ADD A SONG TO THE HOUSE PLAYLIST
 function addSongToProfile(){
 	let new_song = songSearchList[curSelSearchSong];
-	let key = new_song.key.replace("m","")
+	let key = ((new_song.key.search("m") != -1) ? relMajor(new_song.key.replace("m","")) : new_song.key);
 	let house = getHousebyKey(key)
 	cur_profile.playlistSet[house].songList.push(new_song);
 	document.getElementById("status").innerHTML = "[ " + new_song.song_name + " ] added to " + house + suffix[house-1] + " house (" + getSign(key) + ") playlist!"
@@ -292,6 +302,46 @@ function addSongToProfile(){
 	
 	saveProfile();
 }
+
+//go through all the playlists and replace the minors placed there on accident
+function replaceMinorPlaylists(){
+	if(!('isRelMajor' in cur_profile)){
+		//go through all the house playlists
+		for(let i=0;i<12;i++){
+			let songs = cur_profile.playlistSet[i+1].songList;
+			let pkey = cur_profile.playlistSet[i+1].key;
+			let removed = [];
+
+			//move miors to their relative major's playlist if not already there
+			for(let s=0;s<songs.length;s++){
+				let si = songs[s]
+				if(si.key.search("m") != -1){
+					let rl = relMajor(si.key.replace("m",""));
+					//you in the wrong house, motherfucker!
+					if(rl != pkey){
+						removed.push(s);
+						let new_house = getHousebyKey(rl)
+						cur_profile.playlistSet[new_house].songList.push(si);
+						console.log("Moved [ " + si.song_name + " ] to the (" + new_house + ") house playlist: " + si.key + " => " + rl)
+					}
+				}
+			}
+
+			//replace the set to account for the removed songs
+			let new_set = [];
+			for(let s=0;s<songs.length;s++){
+				if(removed.indexOf(s) == -1){
+					new_set.push(songs[s]);
+				}
+			}
+			cur_profile.playlistSet[i+1].songList = new_set;
+		}
+
+		cur_profile.isRelMajor = true;
+	}
+}
+
+
 
 // SHOW THE LIST OF SONGS UNDER THE HOUSE
 function showHousePlaylist(house){

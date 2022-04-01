@@ -92,10 +92,12 @@ body{
 
 #zodiac_sym{
 	font-size:1.5em;
+	display:inline-block;
 }
 
 #zodiac_img{
-	width:40%;
+	width:5em;
+	margin-right: 0.5em;
 }
 
 #music_key_sym{
@@ -118,7 +120,7 @@ body{
 
 #playlist{
 	background-color:#efefef;
-	height: 18em;
+	height: 22em;
 	overflow-y:scroll;
 }
 #playlist_header{
