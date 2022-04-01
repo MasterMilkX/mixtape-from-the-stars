@@ -494,6 +494,7 @@ function readJSON(){
 	fr.onload = function(e){
 		importProfile(e.target.result);
 	}
+	fr.readAsText(files[0]);
 }
 
 
