@@ -605,7 +605,7 @@ function showMain(){
 	addProfileNames();
 	generateHouses();
 
-	// document.body.style.background = "url('bg.jpeg') no-repeat center center";
+	document.body.style.background = "url('bg.jpeg') no-repeat center center";
 	document.body.style.backgroundSize = "100% 100%"
 	console.log("main")
 }
