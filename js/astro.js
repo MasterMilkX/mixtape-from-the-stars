@@ -447,10 +447,150 @@ function shufflePlaylist(){
 	console.log("playlist shuffled!")
 }
 
+// EXPORTS THE CURRENT PROFILE TO A JSON FORM
+function exportProfile(){
+	let proJSON = JSON.stringify(cur_profile);
+	document.getElementById("profileInput").innerHTML = proJSON;
+	copyJSON();
+	document.getElementById("statSettings").innerHTML = "Upload this JSON file to this site on another computer to copy playlists and profiles!"
+	
+	//make it a downloadable json
+	let filename = cur_profile.profileName + "_mfts.json"
+	var file = new Blob([proJSON], {type: 'text/plain'});
+	if (window.navigator.msSaveOrOpenBlob) // IE10+
+	    window.navigator.msSaveOrOpenBlob(file, filename);
+	else { // Others
+	    var a = document.createElement("a"),
+	    url = URL.createObjectURL(file);
+	    a.href = url;
+	    a.download = filename;
+	    document.body.appendChild(a);
+	    a.click();
+	    setTimeout(function() {
+	        document.body.removeChild(a);
+	        window.URL.revokeObjectURL(url);  
+	    }, 0); 
+	}
+	
+}
+
+// READS IN A JSON FILE
+function readJSON(){
+	//read in the JSON pasted to the input text
+	let files = document.getElementById("jsonUpload").files;
+	if(files.length <= 0){
+		let inputtxt = document.getElementById("profileInput").value;
+		if(inputtxt == ""){
+			document.getElementById("statSettings").innerHTML = "Please upload a JSON file above! (Use the export profile button to save a JSON file)"
+			return;
+		}else{
+			importProfile(inputtxt)
+		}
+		
+	}
+	document.getElementById("statSettings").innerHTML = "Reading in file..."
+
+	let fr = new FileReader();
+	fr.onload = function(e){
+		importProfile(e.target.result);
+	}
+}
+
+
+// IMPORTS A PROFILE OR MERGES IF ONE ALREADY EXISTS
+function importProfile(e){
+	//let new_profile = JSON.parse(document.getElementById("profileInput").innerHTML);
+	let new_profile = JSON.parse(e);
+	console.log(new_profile)
+	let profileName = new_profile.profileName;
+
+	//check for the same user
+	let allProfiles = JSON.parse(localStorage.allProfiles);
+	let allUsers = JSON.parse(localStorage.allUsers);
+
+	//merge their data if the same user was found
+	if(allUsers.indexOf(profileName) != -1){
+		if(confirm("A user named " + profileName + " already exists. Do you want to merge this data with theirs?")){
+			//grab the old profile
+			let old_profile = allProfiles[profileName];
+			let newer_profile = mergeProfile(old_profile,new_profile);
+
+			console.log(newer_profile)
+
+			//update the old profile
+			allProfiles[profileName] = newer_profile
+			localStorage.setItem('allProfiles',JSON.stringify(allProfiles));
+
+			if(cur_profile.profileName == profileName){
+				switchProfile(profileName)
+			}
+
+			document.getElementById("statSettings").innerHTML = "Profile imported!"
+		}else{
+			document.getElementById("statSettings").innerHTML = "Profile not imported..."
+			return;
+		}
+	}
+	//otherwise create a whole new profile
+	else{
+		allUsers.push(profileName);
+		localStorage.allUsers = JSON.stringify(allUsers);
+
+		//update the storage
+		allProfiles[profileName] = new_profile
+		localStorage.setItem('allProfiles',JSON.stringify(allProfiles));
+
+	}
+	
+	document.getElementById("statSettings").innerHTML = "Profile imported!"
+}
+
+// MERGES A PROFILE'S PLAYLIST DATA INTO ANOTHERS
+function mergeProfile(this_prof, new_prof){
+	let this_playlist = this_prof.playlistSet;
+	let new_playlist = new_prof.playlistSet;
+
+	//update all the house playlists
+	for(let h=1;h<=12;h++){
+		let tpl = this_playlist[h].songList;
+		let npl = new_playlist[h].songList;
+
+		for(let ni=0;ni<npl.length;ni++){
+			let ns = npl[ni];
+			//add the song if not already in the playlist
+			if(!songInList(ns,tpl)){
+				this_prof.playlistSet[h].songList.push(ns);
+				console.log("Added [ " + ns.song_name + " ] to " + this_prof.profileName + "'s " + h + " house playlist")
+			}
+		}
+	}
+	return this_prof;
+}
+
+// CHECK IF A SONG IS IN A LIST
+function songInList(song, list){
+	return list.map(x => x.spotid).indexOf(song.spotid) != -1
+}
+
+// COPY THE JSON DATA
+function copyJSON(){
+	document.getElementById("profileInput").select();
+	document.execCommand('copy');
+}
+
+
+
+
+
+
+
+
+
 // SHOW THE STARTUP SCREEN
 function showStartup(){
 	document.getElementById("mainPage").style.display = "none";
 	document.getElementById("startPage").style.display = "block";
+	document.getElementById("settingsPage").style.display = "none";
 
 	document.body.style.background = "url(http://www.zingerbugimages.com/backgrounds/purple_satin_love_bats.gif)";
 	console.log("startup")
@@ -460,16 +600,24 @@ function showStartup(){
 function showMain(){
 	document.getElementById("returnMain").style.display = "block";
 	document.getElementById("startPage").style.display = "none";
+	document.getElementById("settingsPage").style.display = "none";
 	document.getElementById("mainPage").style.display = "block";
 	addProfileNames();
 	generateHouses();
 
-	document.body.style.background = "url('bg.jpeg') no-repeat center center";
+	// document.body.style.background = "url('bg.jpeg') no-repeat center center";
 	document.body.style.backgroundSize = "100% 100%"
 	console.log("main")
 }
 
-//search the song
+// SHOW THE SETTINGS SCREEN
+function showSettings(){
+	document.getElementById("mainPage").style.display = "none";
+	document.getElementById("settingsPage").style.display = "block";
+
+}
+
+// SEARCH THE SONG SHORTCUT
 window.addEventListener("keypress", function(e){
 	let q = document.getElementById("song_input").value;
 	if(e.keyCode == 13 && q != ""){
